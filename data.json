@@ -1,0 +1,36 @@
+{
+  "stations": [
+    {
+      "name": "札幌",
+      "kana": "さっぽろ",
+      "prefectures": "北海道",
+      "line": ["函館本線", "千歳線", "札沼線"],
+      "url": [
+        "https://ja.wikipedia.org/wiki/札幌駅",
+        "https://ja.wikipedia.org/wiki/函館本線",
+        "https://ja.wikipedia.org/wiki/千歳線",
+        "https://ja.wikipedia.org/wiki/札沼線"
+      ]
+    },
+    {
+      "name": "新札幌",
+      "kana": "しんさっぽろ",
+      "prefectures": "北海道",
+      "line": ["千歳線"],
+      "url": [
+        "https://ja.wikipedia.org/wiki/新札幌駅",
+        "https://ja.wikipedia.org/wiki/千歳線"
+      ]
+    },
+    {
+      "name": "東札幌",
+      "kana": "ひがしさっぽろ",
+      "prefectures": "北海道",
+      "line": ["札幌市営地下鉄東西線"],
+      "url": [
+        "https://ja.wikipedia.org/wiki/東札幌駅",
+        "https://ja.wikipedia.org/wiki/札幌市営地下鉄東西線"
+      ]
+    }
+  ]
+}

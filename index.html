@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>駅検索（ブラウザ版）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .app {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+      max-width: 960px;
+      width: 100%;
+      padding: 20px 24px 24px;
+    }
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+    .app-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .app-subtitle {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+    .search-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.2fr) auto;
+      gap: 12px 16px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+    .radio-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #374151;
+    }
+    .radio-group input[type="radio"] {
+      accent-color: #2563eb;
+      cursor: pointer;
+    }
+    .keyword-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .keyword-input input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 0.95rem;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .keyword-input input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.45);
+      background: #eff6ff;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+      justify-content: center;
+    }
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.06s ease-out, box-shadow 0.06s ease-out, background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+    .btn:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: none;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+    .results-panel {
+      margin-top: 6px;
+      border-radius: 10px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 480px;
+      overflow: hidden;
+    }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .results-count {
+      font-size: 0.9rem;
+      color: #4b5563;
+    }
+    .results-meta {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+    .results-scroll {
+      margin-top: 4px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .station-card {
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 3px 6px rgba(148, 163, 184, 0.25);
+    }
+    .station-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .station-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .station-kana {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+    .station-body {
+      font-size: 0.85rem;
+      color: #374151;
+      line-height: 1.6;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .url-list a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .url-list a:hover {
+      text-decoration: underline;
+    }
+    .message {
+      font-size: 0.9rem;
+      color: #4b5563;
+      padding: 6px 2px;
+    }
+    .message.error {
+      color: #b91c1c;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      color: #6b7280;
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .app {
+        padding: 14px 14px 16px;
+      }
+      .search-panel {
+        grid-template-columns: 1fr;
+      }
+      .actions {
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div>
+        <div class="app-title">駅検索</div>
+        <div class="app-subtitle">data.json を読み込み、駅名・ふりがなで検索できます。</div>
+      </div>
+      <div class="badge">
+        <span>ブラウザ版</span>
+      </div>
+    </header>
+
+    <section class="search-panel" id="search-panel">
+      <div class="field-group">
+        <div class="section-title">検索文字列</div>
+        <div class="keyword-input">
+          <input
+            id="keyword"
+            type="text"
+            placeholder="例: 東京 / とうきょう"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="section-title">検索項目</div>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="field" value="name" checked />
+            <span>駅名</span>
+          </label>
+          <label>
+            <input type="radio" name="field" value="kana" />
+            <span>ふりがな</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="section-title">検索方法</div>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="mode" value="partial" checked />
+            <span>部分一致</span>
+          </label>
+          <label>
+            <input type="radio" name="mode" value="prefix" />
+            <span>前方一致</span>
+          </label>
+          <label>
+            <input type="radio" name="mode" value="suffix" />
+            <span>後方一致</span>
+          </label>
+          <label>
+            <input type="radio" name="mode" value="exact" />
+            <span>完全一致</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="clear-btn" class="btn btn-secondary" type="button">クリア</button>
+        <button id="search-btn" class="btn btn-primary" type="button">検索</button>
+      </div>
+    </section>
+
+    <section class="results-panel">
+      <div class="results-header">
+        <div class="results-count" id="results-count">データ読み込み中…</div>
+        <div class="results-meta" id="results-meta"></div>
+      </div>
+      <div class="results-scroll" id="results"></div>
+    </section>
+  </div>
+
+  <script src="web_app.js"></script>
+</body>
+</html>
+
